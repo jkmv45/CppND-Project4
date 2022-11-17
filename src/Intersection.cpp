@@ -86,7 +86,6 @@ void Intersection::addVehicleToQueue(std::shared_ptr<Vehicle> vehicle)
     lck.lock();
     
     if (!trafficLightIsGreen()){
-        std::cout << "Vehicle# " << vehicle->getID() << " waiting for light# " << _trafficLight.getID() << std::endl;
         _trafficLight.waitForGreen();
     }
 
@@ -152,6 +151,16 @@ bool Intersection::trafficLightIsGreen()
    else {
        return false;
    }
+} 
 
-//   return true; // makes traffic light permanently green
+bool Intersection::trafficLightIsYellow()
+{
+   // please include this part once you have solved the final project tasks
+
+   if (_trafficLight.getCurrentPhase() == TrafficLightPhase::yellow){
+       return true;
+   }
+   else {
+       return false;
+   }
 } 

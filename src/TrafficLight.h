@@ -18,21 +18,20 @@ public:
     T receive();
 
 private:
-    std::mutex _mutex;
+    std::mutex _mq_mtx;
     std::condition_variable _condition;
     std::deque<T> _queue;
     
 };
 
 
-enum TrafficLightPhase {green, red};
+enum TrafficLightPhase {green, red, yellow};
 
 class TrafficLight : public TrafficObject
 {
 public:
     // constructor / desctructor
     TrafficLight();
-    // ~TrafficLight(){};
 
     // getters / setters
     TrafficLightPhase getCurrentPhase();
