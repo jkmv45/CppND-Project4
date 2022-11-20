@@ -5,11 +5,11 @@
 template <typename T>
 T MessageQueue<T>::receive()
 { 
-    std::unique_lock<std::mutex> unlock(_mq_mtx);
-    _condition.wait(unlock, [this] { return !_queue.empty(); });
+    std::unique_lock<std::mutex> lck_rx(_mq_mtx);
+    _condition.wait(lck_rx, [this] { return !_queue.empty(); });
 
-    T message = std::move(_queue.back());
-    _queue.pop_back();
+    T message = std::move(_queue.back()); // We just want the latest value
+    _queue.clear(); // Clear buffer b/c we don't care about old data.
 
     return message;
 }
@@ -17,7 +17,7 @@ T MessageQueue<T>::receive()
 template <typename T>
 void MessageQueue<T>::send(T &&msg)
 {
-    std::unique_lock<std::mutex> unlock(_mq_mtx);
+    std::lock_guard<std::mutex> lck_tx(_mq_mtx);
     _queue.push_back(std::move(msg));
     _condition.notify_one();
 }
@@ -45,11 +45,6 @@ TrafficLightPhase TrafficLight::getCurrentPhase()
     return _currentPhase;
 }
 
-void TrafficLight::setCurrentPhase(TrafficLightPhase _lightColor){
-    _currentPhase = _lightColor;
-}
-
-
 void TrafficLight::simulate()
 {
     threads.emplace_back(std::thread(&TrafficLight::cycleThroughPhases, this));
@@ -72,7 +67,8 @@ void TrafficLight::cycleThroughPhases()
 
     while(true){
         // Send to MessageQueue
-        trafficLightStatus.send(std::move(_currentPhase));
+        TrafficLightPhase dataToSend = _currentPhase; // Creating local variable to ensure _currentPhase is safe
+        trafficLightStatus.send(std::move(dataToSend));
         // Sleep thread 
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 

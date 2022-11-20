@@ -84,20 +84,20 @@ void Intersection::addVehicleToQueue(std::shared_ptr<Vehicle> vehicle)
     // wait until the vehicle is allowed to enter
     ftrVehicleAllowedToEnter.wait();
     lck.lock();
-    
-    if (!trafficLightIsGreen()){
-        _trafficLight.waitForGreen();
-    }
 
     std::cout << "Intersection #" << _id << ": Vehicle #" << vehicle->getID() << " is granted entry." << std::endl;
 
     lck.unlock();
+    
+    // wait for traffic light to be green
+    if (!trafficLightIsGreen()){
+        _trafficLight.waitForGreen();
+        std::cout << " Light # " << _trafficLight.getID() << " is green" << std::endl;
+    }
 }
 
 void Intersection::vehicleHasLeft(std::shared_ptr<Vehicle> vehicle)
 {
-    //std::cout << "Intersection #" << _id << ": Vehicle #" << vehicle->getID() << " has left." << std::endl;
-
     // unblock queue processing
     this->setIsBlocked(false);
 }
@@ -105,7 +105,6 @@ void Intersection::vehicleHasLeft(std::shared_ptr<Vehicle> vehicle)
 void Intersection::setIsBlocked(bool isBlocked)
 {
     _isBlocked = isBlocked;
-    //std::cout << "Intersection #" << _id << " isBlocked=" << isBlocked << std::endl;
 }
 
 // virtual function which is executed in a thread
@@ -120,9 +119,6 @@ void Intersection::simulate() // using threads + promises/futures + exceptions
 
 void Intersection::processVehicleQueue()
 {
-    // print id of the current thread
-    //std::cout << "Intersection #" << _id << "::processVehicleQueue: thread id = " << std::this_thread::get_id() << std::endl;
-
     // continuously process the vehicle queue
     while (true)
     {
@@ -143,8 +139,6 @@ void Intersection::processVehicleQueue()
 
 bool Intersection::trafficLightIsGreen()
 {
-   // please include this part once you have solved the final project tasks
-
    if (_trafficLight.getCurrentPhase() == TrafficLightPhase::green){
        return true;
    }
@@ -155,8 +149,6 @@ bool Intersection::trafficLightIsGreen()
 
 bool Intersection::trafficLightIsYellow()
 {
-   // please include this part once you have solved the final project tasks
-
    if (_trafficLight.getCurrentPhase() == TrafficLightPhase::yellow){
        return true;
    }

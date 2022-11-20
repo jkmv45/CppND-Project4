@@ -35,7 +35,6 @@ public:
 
     // getters / setters
     TrafficLightPhase getCurrentPhase();
-    void setCurrentPhase(TrafficLightPhase _lightColor);
 
 
     // typical behaviour methods
